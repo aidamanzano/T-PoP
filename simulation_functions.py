@@ -188,5 +188,26 @@ def full_csv(directory_path_string):
             data = pd.read_csv(simulation_path)
             df = df.append(data)
 
-    print(df)
-    df.to_csv(directory_path_string+'full_data.csv')
+    #print(df)
+    return df
+    #df.to_csv(directory_path_string+'full_data.csv')
+
+def full_csv_v2(directory_path_string):
+    """Given a directory pathfile with .txt files of simulation data, 
+    loops through each one, reads them and creates one .csv file with 
+    all the simulation data"""
+    
+    directory = os.fsencode(directory_path_string)
+    dfs = []
+
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        
+        if filename.endswith('.txt'):
+            simulation_path = directory_path_string + filename
+            data = pd.read_csv(simulation_path)
+            dfs.append(data)
+
+    #print(df)
+    return pd.concat(dfs)
+    #df.to_csv(directory_path_string+'full_data.csv')

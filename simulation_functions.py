@@ -51,7 +51,7 @@ def aPoL_simulation_generator(number_of_simulations:int, Number_of_coerced_cars:
         London = e.Environment([0,2], [0,2], 0.25)
         e.environment_update(cars, 0.1, London)
         
-        density = (London.width * London.height) / total_cars
+        density = total_cars / (London.width * London.height)
 
         #Load the PoL algoritm and feed it the initialised objects
         Accuracy, DAG, True_Positive, True_Negative, False_Positive, False_Negative = p.PoL(cars)
@@ -97,10 +97,41 @@ def aPoL_simulation(number_of_simulations:int, Number_of_coerced_cars:int, Numbe
         London = e.Environment([0,2], [0,2], 0.25)
         e.environment_update(cars, 0.1, London)
         
-        density = (London.width * London.height) / total_cars
+        density =  total_cars / (London.width * London.height)
 
         #Load the PoL algoritm and feed it the initialised objects
         Accuracy, DAG, True_Positive, True_Negative, False_Positive, False_Negative = p.PoL(cars)
+
+        row = parser(simulation, Number_of_coerced_cars, Number_of_lying_cars, Number_of_honest_cars, density, Accuracy, True_Positive, True_Negative, False_Positive, False_Negative)
+        
+        data.append(row)
+        
+    simulation_df = pd.DataFrame(data, columns=['Simulation number', 'Percent of coerced cars', 'Percent of lying cars', 'Percent of honest cars', 'Density', 'Accuracy', 
+    'True Positives', 'True Negatives', 'False Positives', 'False Negatives', 
+    'Percent True Positives', 'Percent True Negatives', 'Percent False Positives','Percent False Negatives'])
+
+    return simulation_df
+
+def nPoL_simulation(number_of_simulations:int, Number_of_coerced_cars:int, Number_of_lying_cars:int, Number_of_honest_cars:int, threshold):
+    """Simulation generator for nPoL that takes number of simulations to perform, the three relevant variables and the threshold variable. 
+    """
+
+    data = []
+    
+    for simulation in range(number_of_simulations):
+        cars = []
+        cars = i.car_list_generator(Number_of_honest_cars, Number_of_lying_cars, Number_of_coerced_cars)
+        
+        total_cars = len(cars)
+        
+
+        London = e.Environment([0,2], [0,2], 0.25)
+        e.environment_update(cars, 0.1, London)
+        
+        density =  total_cars / (London.width * London.height)
+
+        #Load the PoL algoritm and feed it the initialised objects
+        Accuracy, DAG, True_Positive, True_Negative, False_Positive, False_Negative = npol.NaivePoL(cars, threshold)
 
         row = parser(simulation, Number_of_coerced_cars, Number_of_lying_cars, Number_of_honest_cars, density, Accuracy, True_Positive, True_Negative, False_Positive, False_Negative)
         
@@ -120,6 +151,7 @@ def make_directory(target_path):
 
 def save_simulation(simulation_df, path, simulation_id):
     simulation_path = path + str(simulation_id) + '.txt'
+    #print(type(simulation_df), 'simulationdf type')
     simulation_df.to_csv(simulation_path)
 
     return simulation_path
@@ -141,7 +173,7 @@ def npol_simulation_generator(number_of_simulations:int, Number_of_coerced_cars:
         London = e.Environment([0,2], [0,2], 0.25)
         e.environment_update(cars, 0.1, London)
         
-        density = (London.width * London.height) / total_cars
+        density = total_cars / (London.width * London.height)
 
         #Load the PoL algoritm and feed it the initialised objects
         Accuracy, DAG, True_Positive, True_Negative, False_Positive, False_Negative = npol.NaivePoL(cars, threshold)
@@ -189,8 +221,8 @@ def full_csv(directory_path_string):
             df = df.append(data)
 
     #print(df)
-    return df
-    #df.to_csv(directory_path_string+'full_data.csv')
+    #return df
+    df.to_csv(directory_path_string+'full_data.csv')
 
 def full_csv_v2(directory_path_string):
     """Given a directory pathfile with .txt files of simulation data, 

@@ -18,7 +18,7 @@ def NaivePoL(cars, threshold):
     for car in cars:
 
         
-        position_claim = car.claim_position()
+        car_position = car.claim_position()
         if len(car.neighbours) == 0:
             car.algorithm_honesty_output = False
             pass
@@ -29,8 +29,11 @@ def NaivePoL(cars, threshold):
 
 
             for neighbor in car.neighbours:
+
+                neighbour_position = car.claim_position()
                 
-                if car.is_in_range_of_sight(neighbor.position):
+                #i think first check is redundant, the neighbour would always be in range of sight of car?
+                if car.is_in_range_of_sight(neighbour_position) and neighbor.is_in_range_of_sight(car_position):
                     car.neighbour_validations += 1
 
 

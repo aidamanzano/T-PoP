@@ -14,10 +14,10 @@ def parser(simulation_number, coerced_cars, lying_cars, honest_cars, density, ac
     percent_lying_cars = np.round(((lying_cars / total_cars) * 100), 2)
     percent_honest_cars = np.round(((honest_cars / total_cars) * 100), 2)
     
-    percent_true_positives = np.round(((True_Positive / total_cars) * 100), 2)
-    percent_true_negatives = np.round(((True_Negative / total_cars ) * 100), 2)
-    percent_false_positives = np.round(((False_Positive / total_cars) * 100), 2)
-    percent_false_negatives = np.round(((False_Negative / total_cars) * 100), 2)
+    percent_true_positives = np.round(((True_Positive / True_Positive + False_Negative) * 100), 2)
+    percent_true_negatives = np.round(((True_Negative / True_Negative +  False_Positive) * 100), 2)
+    percent_false_positives = 100 - percent_true_positives
+    percent_false_negatives = 100 - percent_true_negatives
 
     row_list = [simulation_number, percent_coerced_cars, percent_lying_cars, percent_honest_cars, density, accuracy, 
     True_Positive, True_Negative, False_Positive, False_Negative, percent_true_positives, percent_true_negatives, 
@@ -100,7 +100,7 @@ def aPoL_simulation(number_of_simulations:int, Number_of_coerced_cars:int, Numbe
         density =  total_cars / (London.width * London.height)
 
         #Load the PoL algoritm and feed it the initialised objects
-        Accuracy, DAG, True_Positive, True_Negative, False_Positive, False_Negative = p.PoL(cars)
+        Accuracy, True_Positive, True_Negative, False_Positive, False_Negative = p.PoL(cars)
 
         row = parser(simulation, Number_of_coerced_cars, Number_of_lying_cars, Number_of_honest_cars, density, Accuracy, True_Positive, True_Negative, False_Positive, False_Negative)
         

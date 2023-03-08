@@ -4,7 +4,7 @@ import numpy as np
 class Car():
     """class to create a car with a given position, range of sight and list of neighbours. Car is assumed to be honest"""
     def __init__(self, position: list, velocity: list, range_of_sight: float, ID, coerced):
-        self.position = np.array(position)
+        self.position = position
         self.velocity = np.array(velocity)
         self.position_history = []
         self.position_history.append(np.array(position))
@@ -94,6 +94,7 @@ class Car():
                                 self.neighbours.add(car)
                                 #print('honest car sees honest car')
 
+
         return self.neighbours
 
     def is_car_a_neighbour(self, car):
@@ -106,11 +107,11 @@ class Car():
     def claim_position(self):
         return self.position
 
-    def name_witness(self):
+    def name_witness(self, number = 2):
         """Function to return two witnesses (or attestors), provided the car has sufficient neighbours"""
         if len(self.neighbours) >= 2:
             #select two witnesses at random from list of neighbours
-            self.witnesses = random.sample(self.neighbours, 2)
+            self.witnesses = random.sample(self.neighbours, number)
             return self.witnesses
         else:
             #print("The car does not have sufficient neighbours to witness its position!")
@@ -218,24 +219,35 @@ class lying_car(Car):
 
                 for alleged_nearby_car in city.grid[grid_square[0]][grid_square[1]]:
 
+                    if self.coerced == True:
+
                     #if a lying car finds another lying car claiming to be in the same FAKE position, it will add it as its neighbour. 
                     #it will NOT add the other lying car's real position, only its FAKE position
 
-                    if alleged_nearby_car.honest == False:
-                        
-                        x, y = alleged_nearby_car.get_fake_position_indicies(city.grid_size)
+                        if alleged_nearby_car.honest == False:
+                            
+                            x, y = alleged_nearby_car.get_fake_position_indicies(city.grid_size)
+                            if x == grid_square[0] and y == grid_square[1]:
+                                
+                                
+                                if self.is_in_range_of_sight(alleged_nearby_car.fake_position) and alleged_nearby_car.ID != self.ID:
+                                    self.neighbours.add(alleged_nearby_car)
+
+                        elif alleged_nearby_car.honest == True:
+                            x, y = alleged_nearby_car.get_position_indicies(city.grid_size)
+                            if x == grid_square[0] and y == grid_square[1]:
+                                
+                                if self.is_in_range_of_sight(alleged_nearby_car.position) and alleged_nearby_car.ID != self.ID:
+                                    self.neighbours.add(alleged_nearby_car)
+
+                    elif self.coerced == False:
+                        #A lying, not coerced car will see the true position of any car, with respect to its own fake position.
+                        x, y = alleged_nearby_car.get_position_indicies(city.grid_size)
                         if x == grid_square[0] and y == grid_square[1]:
-                            
-                            
-                            if self.is_in_range_of_sight(alleged_nearby_car.fake_position) and alleged_nearby_car.ID != self.ID:
+                            if self.is_in_range_of_sight(alleged_nearby_car.position) and alleged_nearby_car.ID != self.ID:
                                 self.neighbours.add(alleged_nearby_car)
 
-                    #for a lying car we add neighbours that are honest w.r.t its fake position, provided they are in range of sight
-                    else:
-                        if self.is_in_range_of_sight(alleged_nearby_car.position) and alleged_nearby_car.ID != self.ID:
-                            self.neighbours.add(alleged_nearby_car)
-
-                #Lying car does NOT add any neighbours in its REAL position.
+                        
 
         return self.neighbours
 

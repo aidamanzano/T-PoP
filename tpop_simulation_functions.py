@@ -24,19 +24,23 @@ def parser(simulation_number, probability_of_lying, probability_of_coerced, dens
 
     return row_list
 
-def tpop_simulator(number_of_simulations:int, environment, number_of_cars:int, probability_of_lying:float, probability_of_coerced:float, depth:int, witness_number_per_depth:list):
-
+def tpop_simulator(number_of_simulations:int, number_of_cars:int, probability_of_lying:float, probability_of_coerced:float, depth:int, witness_number_per_depth:list):
     data = []
-    
+
+    import time 
     for simulation in range(number_of_simulations):
+        environment = e.Environment([0,2], [0,2], 0.25)
         car_list = []
         car_list = i.cars_init(number_of_cars, probability_of_lying, probability_of_coerced, car_list, environment)
-        
-        e.environment_update(car_list, 0.1, environment)
-        
+
+        s=time.time()
+        e.environment_update(car_list, 0.01, environment)
+        env_update = time.time() - s
         density =  number_of_cars / (environment.width * environment.height)
 
         #Load the PoL algoritm and feed it the initialised objects
+        s=time.time()
+
         for car in car_list:
             t.tpop(car, depth, witness_number_per_depth)
             True_Positive, True_Negative, False_Positive, False_Negative, Accuracy = t.results(car_list)
@@ -44,6 +48,9 @@ def tpop_simulator(number_of_simulations:int, environment, number_of_cars:int, p
         
             data.append(row)
         
+        tpop_update=time.time() - s
+
+        #print(f'Ran simulation {simulation+1}/{number_of_simulations}. Env update time: {env_update:.3g}. Tpop update time: {tpop_update:.3g}')
     simulation_df = pd.DataFrame(data, columns=['Simulation number', 'Probability of lying cars', 'Probability of coerced cars', 'Density', 'Accuracy', 
     'True Positives', 'True Negatives', 'False Positives', 'False Negatives', 
     'Percent True Positives', 'Percent True Negatives', 'Percent False Positives','Percent False Negatives'])
@@ -99,4 +106,3 @@ def full_csv_windows(directory_path_string):
             dfs.append(data)
 
     return pd.concat(dfs)
-

@@ -10,3 +10,12 @@ c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop
 c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/10p_lying0.0p_coerced90.0.txt
 c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/11p_lying0.0p_coerced100.0.txt
 c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/12p_lying10.0p_coerced0.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/13p_lying10.0p_coerced10.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/14p_lying10.0p_coerced20.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/15p_lying10.0p_coerced30.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/16p_lying10.0p_coerced40.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/17p_lying10.0p_coerced50.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/18p_lying10.0p_coerced60.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/19p_lying10.0p_coerced70.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/20p_lying10.0p_coerced80.0.txt
+c:\Users\aidam\OneDrive - Imperial College London\Desktop\tpop folder\T-PoP/tpop/t1/21p_lying10.0p_coerced90.0.txt

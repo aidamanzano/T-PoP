@@ -246,7 +246,7 @@ class lying_car(Car):
                         if x == grid_square[0] and y == grid_square[1]:
                             if self.is_in_range_of_sight(alleged_nearby_car.position) and alleged_nearby_car.ID != self.ID:
                                 self.neighbours.add(alleged_nearby_car)
-
+                    
                         
 
         return self.neighbours

@@ -82,10 +82,6 @@ def results(cars):
     False_Positive = 0
     False_Negative = 0
 
-    True_Positive_cars = []
-    True_Negative_cars = []
-    False_Positive_cars = []
-    False_Negative_cars = []
 
     for car in cars:
 

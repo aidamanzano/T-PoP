@@ -38,7 +38,7 @@ def cars_init(number_of_cars, p, q, car_list, environment):
         coin_toss = np.random.rand()
         position = create_position(environment)
         
-        if coin_toss < p:
+        if coin_toss < 1 - p:
             car_list = honest_cars_init(car_list, position)
         else:
             fake_position = create_position(environment)

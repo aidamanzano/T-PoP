@@ -109,7 +109,7 @@ class Car():
 
     def name_witness(self, number = 2):
         """Function to return two witnesses (or attestors), provided the car has sufficient neighbours"""
-        if len(self.neighbours) >= 2:
+        if len(self.neighbours) >= 10:
             #select two witnesses at random from list of neighbours
             self.witnesses = random.sample(self.neighbours, number)
             return self.witnesses

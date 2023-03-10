@@ -7,13 +7,13 @@ import environment_class as e
 #IMPORTANT: scipy must be at least version 1.8 otherwise networkx will throw an attribute error: 
 # https://github.com/pyg-team/pytorch_geometric/issues/4378 
 
-def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_cars:set):
+def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_cars:set, threshold):
 
     #or has less than the required number of witnesses, or has named duplicate witnesses
     #NOTE: this should technically be: if len(named_witnesses)*threshold < witness_number then False, 
     #but then would have to pass a different value into car.name_witness(witness_number)
 
-    if len(witnesses) < number_of_witnesses_needed or (len(witnesses) != len(set(witnesses))):
+    if len(witnesses) < int(number_of_witnesses_needed *threshold) or (len(witnesses) != len(set(witnesses))):
         car.algorithm_honesty_output = False
         print('car has less than 2 witnesses or cross referenced witnesses')
             
@@ -21,7 +21,7 @@ def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_c
         
         #TODO: add the red car to the graph only if the witnesses tests pass
         #DAG.add_node(car, color = 'red')
-
+        counter = 0
         for witness in witnesses:
 
             #The witness cannot have been named before (ie: cannot be Car 1)
@@ -41,9 +41,15 @@ def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_c
                 
             else:
                 car.algorithm_honesty_output = True
+                counter += 1
                 #print('entered True output')
                 #we add each witness ID to named_cars set to keep track of the named cars so far
                 named_cars.add(witness.ID)
+
+        if counter < int(number_of_witnesses_needed *threshold):
+            car.algorithm_honesty_output = False
+        
+
     return witnesses, named_cars
 
 
@@ -52,7 +58,7 @@ def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_c
 """ if len(witness_number_per_depth) != depth:
     raise Exception('Make sure there is number of witnesses defined for each round') """
 #call this function for car in cars
-def tpop(car, depth, witness_number_per_depth):
+def tpop(car, depth, witness_number_per_depth, threshold):
     
     for i in range(depth):
         
@@ -67,10 +73,10 @@ def tpop(car, depth, witness_number_per_depth):
             car.algorithm_honesty_output = False
             
         else:    
-            witnesses, named_cars = checks(car, car_position, witnesses, number_of_witnesses_needed, named_cars)
+            witnesses, named_cars = checks(car, car_position, witnesses, number_of_witnesses_needed, named_cars, threshold)
 
             for witness in witnesses:
-                tpop(witness, depth -1, witness_number_per_depth)
+                tpop(witness, depth -1, witness_number_per_depth, threshold)
                 
 
 

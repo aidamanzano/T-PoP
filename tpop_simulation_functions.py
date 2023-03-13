@@ -29,7 +29,7 @@ def tpop_simulator(number_of_simulations:int, number_of_cars:int, probability_of
 
     import time 
     for simulation in range(number_of_simulations):
-        environment = e.Environment([0,2], [0,2], 0.25)
+        environment = e.Environment([0,0.25], [0,0.25], 0.25)
         car_list = []
         car_list = i.cars_init(number_of_cars, probability_of_lying, probability_of_coerced, car_list, environment)
 

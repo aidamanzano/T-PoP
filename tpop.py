@@ -48,6 +48,7 @@ def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_c
 
         if counter < int(number_of_witnesses_needed *threshold):
             car.algorithm_honesty_output = False
+            
         
 
     return witnesses, named_cars
@@ -77,10 +78,75 @@ def tpop(car, depth, witness_number_per_depth, threshold):
 
             for witness in witnesses:
                 tpop(witness, depth -1, witness_number_per_depth, threshold)
-                
 
+def dishonest(p):
+    if np.random.rand() < p:
+        return False
+    else:
+        return True
 
+def coerced(q):
+    if np.random.rand() < q:
+        return True
+    else:
+        return False
+    
 
+class Node:
+
+    def __init__(self, p, q, parent = None):
+
+        self.honest = dishonest(p)
+        self.coerced = coerced(q)
+        self.parent = parent
+        self.children = []
+        self.verified = True
+
+        if self.honest and self.coerced:
+            self.type = 0
+        elif not self.honest and self.coerced:
+            self.type = 1
+        elif self.honest and not self.coerced:
+            self.type = 2
+        else:
+            self.type = 3
+class Tree:
+
+    def __init__(self, depth, n, p, q):
+
+        self.prover = Node(p,q)
+        self.nodes = [[self.prover]]
+        self.depth = depth
+        
+        for d in range(depth):
+            s = []
+            for node in self.nodes[d]:
+                for l in range(n): #we can modify this to take into account different amounts of cars per level
+                    newNode = Node(p, q, parent = node)
+                    s.append(newNode)
+                node.children = s
+            self.nodes.append(s)
+depth = 3
+tree  = Tree(depth, 2, 1, 1)
+#print(tree.nodes[2])
+
+for level in reversed(range(0, depth)):
+    print(level)
+    for leaf in tree.nodes[level]:
+        
+        print(leaf)
+        print(leaf.parent)
+        #do checks 
+
+#Pseudocode idea:
+""" Car 1 initiates the round:
+Tree building function:
+for i in depth: build tree with car 1 as root.
+
+For child in parent node, do checks
+keep counter at that depth level
+return the output of the counter
+"""
 
 def results(cars):
     True_Positive = 0
@@ -107,3 +173,37 @@ def results(cars):
 
 #print(True_Positive, True_Negative, False_Positive, False_Negative)
 #print(False_Negative_cars)
+
+""" from collections import deque
+
+def bfs_reverse(graph, start):
+    # Initialize queue and visited set
+    queue = deque([start])
+    visited = set([start])
+
+    # Traverse the graph in reverse
+    while queue:
+        node = queue.popleft()
+        # Visit neighbors in reverse order
+        for neighbor in reversed(graph[node]):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return visited
+from collections import deque, OrderedDict
+
+
+
+graph = OrderedDict({
+    'car1': ['witness1', 'witness2'],
+    'witness1': ['attestor 1', 'attestor 2'],
+    'witness2': ['attestor 3', 'attestor 4'],
+    'attestor 1': [],
+    'attestor 2': [],
+    'attestor 3': [],
+    'attestor 4': []
+})
+
+visited = bfs_reverse(graph, 'car1')
+print(visited)  # prints {6, 4, 5, 2, 3, 1} """

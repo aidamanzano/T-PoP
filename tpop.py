@@ -59,12 +59,9 @@ def checks_v2(child, named_cars, number_of_witnesses_needed, threshold):
     all criteria for T-PoP are met."""
     counter = 0
     parent = child.parent
-    print('PARENT: ', parent)
     parent_position = parent.claim_position()
 
-    
-
-        
+    #TODO: for each child of the parent, add the counter of the children and set that to the parent counter
     if (
     #checking the parent is a neighbour of the child
     child.is_car_a_neighbour(parent) is True and
@@ -80,20 +77,9 @@ def checks_v2(child, named_cars, number_of_witnesses_needed, threshold):
 
         counter += 1
         named_cars.add(child.ID)
+    return counter
 
-    parent.counter = counter
-    print('parent counter: ',parent.counter)
 
-    """ #counter is set as None by default, only gets a value assigned after having been passed through a sweep
-    if child.counter is not None:
-        print('child counter uis not Nonw', child.counter)
-        #after the sweep, we ensure that the parent has had enough verifications:
-        if counter >= int(number_of_witnesses_needed * threshold):
-            parent.algorithm_honesty_output = True
-            print('testing here!')
-        else:
-            parent.algorithm_honesty_output = False
- """
 
 
 #---------------------START OF AIDA POL protocol----------------------:
@@ -134,10 +120,9 @@ class Tree2:
             
             s = []
             for node in self.nodes[d]:
-                print('NODE ',node)
                 
                 witnesses = node.name_witness(n)
-                print('witnesses ',witnesses)
+                
                 for witness in witnesses:
                     witness.parent = node
                     s.append(witness)
@@ -158,7 +143,7 @@ for n in range(100):
 e.environment_update(car_list, 0.01, London)
 
 depth = 2
-witness_number_per_depth = [2, 2]
+witness_number_per_depth = [2, 2, 2]
 
 tree = Tree2(car_list[0], depth, 2)
 for d in range(depth + 1):
@@ -167,35 +152,38 @@ for d in range(depth + 1):
 
 
 
-#tree  = Tree(depth, 2, 1, 1)
-#print(tree.nodes)
-#print(tree.nodes[2])
-
-#TODO: for car in cars, generate Tree
 
 def reverse_bfs(tree, witness_number_per_depth, threshold):
 
     root = tree.prover
     named_cars = set()
-    #print('tree depth: ', tree.depth)
+    
 
     for level in reversed(range(0, tree.depth + 1)):
-        #number_of_witnesses_needed = witness_number_per_depth[level]
-        number_of_witnesses_needed = 2
-        #print(level)
-        #print(tree.nodes[level])
-
+        number_of_witnesses_needed = witness_number_per_depth[level]
+        #number_of_witnesses_needed = 2
+        
+        print(level)
+        parent_counter = 0
         for child in tree.nodes[level]:
-            #if child.parent is not None:
-            #print('child's parent',child.parent)
+            parent = child.parent
             
-            """ #print(child)
-            #print(child.parent)
-            checks_v2(child, named_cars, number_of_witnesses_needed, threshold)
-            named_cars.add(child.ID) """
-            """ else:
-                print('parent is None')
-                return root.algorithm_honesty_output """
+            
+            if child.parent is None:
+                break
+                
+            
+            counter = checks_v2(child, named_cars, number_of_witnesses_needed, threshold)
+            named_cars.add(child.ID)
+            parent_counter = parent_counter + counter
+            parent.counter = parent_counter
+
+    print('root counter ', root.counter, int(number_of_witnesses_needed * threshold))
+    if root.counter >= int(number_of_witnesses_needed * threshold):
+        root.algorithm_honesty_output = True
+    else:
+        root.algorithm_honesty_output = False
+            
 
     return root.algorithm_honesty_output
 

@@ -3,7 +3,7 @@ import numpy as np
 
 class Car():
     """class to create a car with a given position, range of sight and list of neighbours. Car is assumed to be honest"""
-    def __init__(self, position: list, velocity: list, range_of_sight: float, ID, coerced):
+    def __init__(self, position: list, velocity: list, range_of_sight: float, ID, coerced, parent=None):
         self.position = position
         self.velocity = np.array(velocity)
         self.position_history = []
@@ -16,6 +16,12 @@ class Car():
         self.algorithm_honesty_output = None #does the algorithm dictate that this car is honest or a liar
         self.coerced = coerced
         self.neighbour_validations = 0
+
+        self.parent = parent
+        self.children = []
+        self.verified = True
+        self.counter = None
+
 
     @property
     def range_of_sight(self):
@@ -109,7 +115,7 @@ class Car():
 
     def name_witness(self, number = 2):
         """Function to return two witnesses (or attestors), provided the car has sufficient neighbours"""
-        if len(self.neighbours) >= 10:
+        if len(self.neighbours) >= number:
             #select two witnesses at random from list of neighbours
             self.witnesses = random.sample(self.neighbours, number)
             return self.witnesses

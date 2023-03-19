@@ -49,9 +49,51 @@ def checks(car, car_position, witnesses, number_of_witnesses_needed:int, named_c
         if counter < int(number_of_witnesses_needed *threshold):
             car.algorithm_honesty_output = False
             
-        
 
     return witnesses, named_cars
+
+
+
+def checks_v2(child, named_cars, number_of_witnesses_needed, threshold):
+    """checks called from the child with respect to the parent node, to ensure that 
+    all criteria for T-PoP are met."""
+    counter = 0
+    parent = child.parent
+    print('PARENT: ', parent)
+    parent_position = parent.claim_position()
+
+    
+
+        
+    if (
+    #checking the parent is a neighbour of the child
+    child.is_car_a_neighbour(parent) is True and
+    #checking the parent is in the range of sight of the child
+    child.is_in_range_of_sight(parent_position) is True and
+    #checking the child has not been named before
+    child.ID not in named_cars and 
+    #checking the parent has named enough witnesses (ie children)
+    len(parent.children) >= int(number_of_witnesses_needed * threshold) and
+    #checking that there is no repeats in the named witnesses (ie children) 
+    len(parent.children) == len(set(parent.children))
+    ):
+
+        counter += 1
+        named_cars.add(child.ID)
+
+    parent.counter = counter
+    print('parent counter: ',parent.counter)
+
+    """ #counter is set as None by default, only gets a value assigned after having been passed through a sweep
+    if child.counter is not None:
+        print('child counter uis not Nonw', child.counter)
+        #after the sweep, we ensure that the parent has had enough verifications:
+        if counter >= int(number_of_witnesses_needed * threshold):
+            parent.algorithm_honesty_output = True
+            print('testing here!')
+        else:
+            parent.algorithm_honesty_output = False
+ """
 
 
 #---------------------START OF AIDA POL protocol----------------------:
@@ -79,74 +121,87 @@ def tpop(car, depth, witness_number_per_depth, threshold):
             for witness in witnesses:
                 tpop(witness, depth -1, witness_number_per_depth, threshold)
 
-def dishonest(p):
-    if np.random.rand() < p:
-        return False
-    else:
-        return True
 
-def coerced(q):
-    if np.random.rand() < q:
-        return True
-    else:
-        return False
-    
+class Tree2:
 
-class Node:
+    def __init__(self, prover, depth, n):
 
-    def __init__(self, p, q, parent = None):
-
-        self.honest = dishonest(p)
-        self.coerced = coerced(q)
-        self.parent = parent
-        self.children = []
-        self.verified = True
-
-        if self.honest and self.coerced:
-            self.type = 0
-        elif not self.honest and self.coerced:
-            self.type = 1
-        elif self.honest and not self.coerced:
-            self.type = 2
-        else:
-            self.type = 3
-class Tree:
-
-    def __init__(self, depth, n, p, q):
-
-        self.prover = Node(p,q)
+        self.prover = prover
         self.nodes = [[self.prover]]
         self.depth = depth
         
         for d in range(depth):
+            
             s = []
             for node in self.nodes[d]:
-                for l in range(n): #we can modify this to take into account different amounts of cars per level
-                    newNode = Node(p, q, parent = node)
-                    s.append(newNode)
+                print('NODE ',node)
+                
+                witnesses = node.name_witness(n)
+                print('witnesses ',witnesses)
+                for witness in witnesses:
+                    witness.parent = node
+                    s.append(witness)
+                    
                 node.children = s
             self.nodes.append(s)
-depth = 3
-tree  = Tree(depth, 2, 1, 1)
+
+London = e.Environment([0,0.25], [0,0.25], 0.25)
+p = 1
+q = 0
+car_list = []
+for n in range(100):
+    car = i.car_gen(p, q, London)
+    car_list.append(car)
+
+#print(car_list)
+
+e.environment_update(car_list, 0.01, London)
+
+depth = 2
+witness_number_per_depth = [2, 2]
+
+tree = Tree2(car_list[0], depth, 2)
+for d in range(depth + 1):
+    print(tree.nodes[d])
+
+
+
+
+#tree  = Tree(depth, 2, 1, 1)
+#print(tree.nodes)
 #print(tree.nodes[2])
 
-for level in reversed(range(0, depth)):
-    print(level)
-    for leaf in tree.nodes[level]:
-        
-        print(leaf)
-        print(leaf.parent)
-        #do checks 
+#TODO: for car in cars, generate Tree
 
-#Pseudocode idea:
-""" Car 1 initiates the round:
-Tree building function:
-for i in depth: build tree with car 1 as root.
+def reverse_bfs(tree, witness_number_per_depth, threshold):
 
-For child in parent node, do checks
-keep counter at that depth level
-return the output of the counter
-"""
+    root = tree.prover
+    named_cars = set()
+    #print('tree depth: ', tree.depth)
+
+    for level in reversed(range(0, tree.depth + 1)):
+        #number_of_witnesses_needed = witness_number_per_depth[level]
+        number_of_witnesses_needed = 2
+        #print(level)
+        #print(tree.nodes[level])
+
+        for child in tree.nodes[level]:
+            #if child.parent is not None:
+            #print('child's parent',child.parent)
+            
+            """ #print(child)
+            #print(child.parent)
+            checks_v2(child, named_cars, number_of_witnesses_needed, threshold)
+            named_cars.add(child.ID) """
+            """ else:
+                print('parent is None')
+                return root.algorithm_honesty_output """
+
+    return root.algorithm_honesty_output
+
+output = reverse_bfs(tree, witness_number_per_depth, 1)
+
+print('HERE: ', output)
 
 def results(cars):
     True_Positive = 0
@@ -174,36 +229,4 @@ def results(cars):
 #print(True_Positive, True_Negative, False_Positive, False_Negative)
 #print(False_Negative_cars)
 
-""" from collections import deque
 
-def bfs_reverse(graph, start):
-    # Initialize queue and visited set
-    queue = deque([start])
-    visited = set([start])
-
-    # Traverse the graph in reverse
-    while queue:
-        node = queue.popleft()
-        # Visit neighbors in reverse order
-        for neighbor in reversed(graph[node]):
-            if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append(neighbor)
-
-    return visited
-from collections import deque, OrderedDict
-
-
-
-graph = OrderedDict({
-    'car1': ['witness1', 'witness2'],
-    'witness1': ['attestor 1', 'attestor 2'],
-    'witness2': ['attestor 3', 'attestor 4'],
-    'attestor 1': [],
-    'attestor 2': [],
-    'attestor 3': [],
-    'attestor 4': []
-})
-
-visited = bfs_reverse(graph, 'car1')
-print(visited)  # prints {6, 4, 5, 2, 3, 1} """

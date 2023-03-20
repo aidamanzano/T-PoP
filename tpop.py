@@ -56,11 +56,12 @@ class Tree2:
             for node in self.nodes[d]:
                 #the node names some witnesses
                 witnesses = node.name_witness(n[d])
-                
-                for witness in witnesses:
-                    #we set the parent of that witness to be the node naming them
-                    witness.parent = node
-                    s.append(witness)
+                if witnesses is not None:
+
+                    for witness in witnesses:
+                        #we set the parent of that witness to be the node naming them
+                        witness.parent = node
+                        s.append(witness)
                 #and set the children of the nodes to be the named witnesses    
                 node.children = s
             self.nodes.append(s)
@@ -95,23 +96,25 @@ def reverse_bfs(tree, witness_number_per_depth, threshold):
             #update the parent counter
             parent_counter = parent_counter + counter
             parent.counter = parent_counter
-
-    print('root counter ', root.counter, int(number_of_witnesses_needed * threshold))
-    #check that the root has enough approvals to be considered honest
-    if root.counter >= int(number_of_witnesses_needed * threshold):
-        root.algorithm_honesty_output = True
-    else:
-        root.algorithm_honesty_output = False
-            
+            print(parent.counter)
+    
+    if child.counter is not None:
+        print('root counter ', root.counter, int(number_of_witnesses_needed * threshold))
+        #check that the root has enough approvals to be considered honest
+        if root.counter >= int(number_of_witnesses_needed * threshold):
+            root.algorithm_honesty_output = True
+        else:
+            root.algorithm_honesty_output = False
+                
 
     return root.algorithm_honesty_output
 
 
 London = e.Environment([0,0.25], [0,0.25], 0.25)
-p = 0.5
+p = 0
 q = 0
 car_list = []
-for n in range(100):
+for n in range(1000):
     car = i.car_gen(p, q, London)
     car_list.append(car)
 
@@ -120,11 +123,11 @@ for n in range(100):
 e.environment_update(car_list, 0.01, London)
 
 depth = 2
-witness_number_per_depth = [2, 2, 2]
+witness_number_per_depth = [2, 2, 2] 
 
-""" tree = Tree2(car_list[0], depth, witness_number_per_depth)
+tree = Tree2(car_list[0], depth, witness_number_per_depth)
 for d in range(depth + 1):
-    print(tree.nodes[d]) """
+    print(tree.nodes[d])
 
 
 for car in car_list:

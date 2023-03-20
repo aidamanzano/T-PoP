@@ -6,7 +6,7 @@ import pandas as pd
 import initialiser_functions as i
 import numpy as np
 
-def parser(simulation_number, probability_of_lying, probability_of_coerced, density, threshold, accuracy, True_Positive, True_Negative, False_Positive, False_Negative):
+def parser(simulation_number, probability_of_honest, probability_of_coerced, density, threshold, accuracy, True_Positive, True_Negative, False_Positive, False_Negative):
     if True_Positive + False_Negative:
         percent_true_positives = (True_Positive / (True_Positive + False_Negative)) * 100
     else:
@@ -18,20 +18,22 @@ def parser(simulation_number, probability_of_lying, probability_of_coerced, dens
     percent_false_positives = 100 - percent_true_positives
     percent_false_negatives = 100 - percent_true_negatives
 
-    row_list = [simulation_number, probability_of_lying, probability_of_coerced, density, threshold, accuracy,
+    row_list = [simulation_number, probability_of_honest, probability_of_coerced, density, threshold, accuracy,
     True_Positive, True_Negative, False_Positive, False_Negative, percent_true_positives, percent_true_negatives, 
     percent_false_positives, percent_false_negatives]
 
     return row_list
 
-def tpop_simulator(number_of_simulations:int, number_of_cars:int, probability_of_lying:float, probability_of_coerced:float, depth:int, witness_number_per_depth:list, threshold:float):
+def tpop_simulator(number_of_simulations:int, number_of_cars:int, probability_of_honest:float, probability_of_coerced:float, depth:int, witness_number_per_depth:list, threshold:float):
     data = []
 
     import time 
     for simulation in range(number_of_simulations):
-        environment = e.Environment([0,0.25], [0,0.25], 0.25)
+        environment = e.Environment([0,0.25], [0,0.25], 0.05)
         car_list = []
-        car_list = i.cars_init(number_of_cars, probability_of_lying, probability_of_coerced, car_list, environment)
+        for n in range(number_of_cars):
+            car = i.car_gen(probability_of_honest, probability_of_coerced, environment)
+            car_list.append(car)
 
         s=time.time()
         e.environment_update(car_list, 0.01, environment)
@@ -42,16 +44,19 @@ def tpop_simulator(number_of_simulations:int, number_of_cars:int, probability_of
         s=time.time()
 
         for car in car_list:
-            t.tpop(car, depth, witness_number_per_depth, threshold)
-            True_Positive, True_Negative, False_Positive, False_Negative, Accuracy = t.results(car_list)
-            row = parser(simulation, probability_of_lying, probability_of_coerced, density, threshold, Accuracy, True_Positive, True_Negative, False_Positive, False_Negative)
+            
+            tree = t.Tree2(car, depth, witness_number_per_depth)
+            output = t.reverse_bfs(tree, witness_number_per_depth, threshold)
         
-            data.append(row)
+        True_Positive, True_Negative, False_Positive, False_Negative, Accuracy = t.results(car_list)
+        row = parser(simulation, probability_of_honest, probability_of_coerced, density, threshold, Accuracy, True_Positive, True_Negative, False_Positive, False_Negative)
+        
+        data.append(row)
         
         tpop_update=time.time() - s
 
         #print(f'Ran simulation {simulation+1}/{number_of_simulations}. Env update time: {env_update:.3g}. Tpop update time: {tpop_update:.3g}')
-    simulation_df = pd.DataFrame(data, columns=['Simulation number', 'Probability of lying cars', 'Probability of coerced cars', 'Density', 'Threshold','Accuracy', 
+    simulation_df = pd.DataFrame(data, columns=['Simulation number', 'Probability of honest cars', 'Probability of coerced cars', 'Density', 'Threshold','Accuracy', 
     'True Positives', 'True Negatives', 'False Positives', 'False Negatives', 
     'Percent True Positives', 'Percent True Negatives', 'Percent False Positives','Percent False Negatives'])
 
